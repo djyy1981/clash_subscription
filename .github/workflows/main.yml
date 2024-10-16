@@ -41,8 +41,8 @@ jobs:
           # 输出提取的链接
           echo "Download link is: $LINK"
           
-          # 尝试下载链接内容
-          curl -o clash_subscription.txt "$LINK"
+          # 使用引号保护链接，增加 --location 参数以处理重定向
+          curl --location -o clash_subscription.txt "$LINK"
 
       - name: Output subscription content
         run: |
