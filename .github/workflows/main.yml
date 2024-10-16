@@ -14,15 +14,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          python-version: '3.x'
+          node-version: '16'  # 可以根据需要更改版本
 
-      - name: Install requests
+      - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install requests
+          npm install axios
 
       - name: Fetch README.md content
         run: |
@@ -45,23 +44,31 @@ jobs:
           # 输出提取的链接
           echo "Download link is: $LINK"
 
-      - name: Download using Python requests
+      - name: Download using Node.js
         run: |
-          python - <<EOF
-          import requests
+          node -e "
+          const axios = require('axios');
+          const fs = require('fs');
 
-          url = "$LINK"
-          response = requests.get(url)
+          const url = process.env.LINK;
           
-          # 检查请求是否成功
-          if response.status_code == 200:
-              with open("clash_subscription.txt", "wb") as f:
-                  f.write(response.content)
-              print("Downloaded content saved to clash_subscription.txt")
-          else:
-              print(f"Failed to download content. Status code: {response.status_code}")
-              exit(1)
-          EOF
+          axios.get(url, { responseType: 'arraybuffer' })
+            .then(response => {
+              if (response.status === 200) {
+                fs.writeFileSync('clash_subscription.txt', response.data);
+                console.log('Downloaded content saved to clash_subscription.txt');
+              } else {
+                console.error('Failed to download content. Status code:', response.status);
+                process.exit(1);
+              }
+            })
+            .catch(error => {
+              console.error('Error occurred while downloading:', error.message);
+              process.exit(1);
+            });
+          "          
+        env:
+          LINK: ${{ steps.fetch-clash-subscription.outputs.LINK }}
 
       - name: Output subscription content
         run: |
