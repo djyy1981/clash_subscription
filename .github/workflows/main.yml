@@ -14,10 +14,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+
       - name: Fetch README.md content
         run: |
           # 下载 README.md 文件
-          curl -o README.md https://raw.githubusercontent.com/abshare/abshare.github.io/refs/heads/main/README.md
+          wget -O README.md https://raw.githubusercontent.com/abshare/abshare.github.io/refs/heads/main/README.md
           
           # 输出 README.md 的内容以调试
           echo "Content of README.md:"
@@ -32,17 +37,26 @@ jobs:
             exit 1
           fi
 
-          # 验证链接格式
-          if ! [[ "$LINK" =~ ^https://.+ ]]; then
-            echo "The link format is invalid: $LINK"
-            exit 1
-          fi
-
           # 输出提取的链接
           echo "Download link is: $LINK"
+
+      - name: Download using Python requests
+        run: |
+          python - <<EOF
+          import requests
+
+          url = "$LINK"
+          response = requests.get(url)
           
-          # 使用引号保护链接，增加 --location 参数以处理重定向
-          curl --location -o clash_subscription.txt "$LINK"
+          # 检查请求是否成功
+          if response.status_code == 200:
+              with open("clash_subscription.txt", "wb") as f:
+                  f.write(response.content)
+              print("Downloaded content saved to clash_subscription.txt")
+          else:
+              print(f"Failed to download content. Status code: {response.status_code}")
+              exit(1)
+          EOF
 
       - name: Output subscription content
         run: |
