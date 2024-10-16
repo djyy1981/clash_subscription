@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          persist-credentials: false  # 禁用默认的 GitHub token
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -73,6 +75,12 @@ jobs:
         env:
           LINK: ${{ env.LINK }}
 
-      - name: Output subscription content
+      - name: Commit and push changes
         run: |
-          cat clash_subscription.txt
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add clash_subscription.txt
+          git commit -m "Update clash_subscription.txt"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
