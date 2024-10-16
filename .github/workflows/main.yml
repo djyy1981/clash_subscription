@@ -23,12 +23,18 @@ jobs:
           echo "Content of README.md:"
           cat README.md
           
-          # 尝试提取链接
+          # 提取链接并修复格式
           LINK=$(grep -A 5 ">🚀免费Clash订阅链接" README.md | grep -Eo 'https:/[^"]+' | head -n 1 | sed 's|https:/|https://|')
 
           # 检查链接是否为空
           if [ -z "$LINK" ]; then
             echo "Failed to find the download link."
+            exit 1
+          fi
+
+          # 验证链接格式
+          if ! [[ "$LINK" =~ ^https://.+ ]]; then
+            echo "The link format is invalid: $LINK"
             exit 1
           fi
 
