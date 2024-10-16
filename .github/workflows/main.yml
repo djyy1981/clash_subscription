@@ -3,6 +3,9 @@ name: Fetch Clash Subscription
 on:
   schedule:
     - cron: '*/5 * * * *'  # 每5分钟运行一次
+  watch:
+    types: 
+      - started  # 当有人 star 这个仓库时触发
 
 jobs:
   fetch-clash-subscription:
