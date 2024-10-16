@@ -19,16 +19,18 @@ jobs:
           # 下载 README.md 文件
           curl -o README.md https://raw.githubusercontent.com/abshare/abshare.github.io/refs/heads/main/README.md
           
-          # 输出文件内容以调试
+          # 输出 README.md 的内容以调试
           echo "Content of README.md:"
           cat README.md
           
-          # 提取链接，排除空白行
-          LINK=$(grep -A 1 ">🚀免费Clash订阅链接" README.md | tail -n 1 | tr -d '[:space:]' | sed 's/^https:/https:\/\//')
+          # 尝试提取链接
+          LINK=$(grep -A 5 ">🚀免费Clash订阅链接" README.md | grep -Eo 'https?://[^\s]+' | head -n 1)
 
           # 检查链接是否为空
           if [ -z "$LINK" ]; then
             echo "Failed to find the download link."
+            echo "The content around the target keyword was:"
+            grep -A 5 ">🚀免费Clash订阅链接" README.md
             exit 1
           fi
 
