@@ -23,8 +23,8 @@ jobs:
           echo "Content of README.md:"
           cat README.md
           
-          # 提取链接
-          LINK=$(grep -A 1 ">🚀免费Clash订阅链接" README.md | tail -n 1 | sed 's/^https:/https:\/\//')
+          # 提取链接，排除空白行
+          LINK=$(grep -A 1 ">🚀免费Clash订阅链接" README.md | tail -n 1 | tr -d '[:space:]' | sed 's/^https:/https:\/\//')
 
           # 检查链接是否为空
           if [ -z "$LINK" ]; then
@@ -32,9 +32,10 @@ jobs:
             exit 1
           fi
 
+          # 输出提取的链接
           echo "Download link is: $LINK"
           
-          # 下载链接内容
+          # 尝试下载链接内容
           curl -o clash_subscription.txt "$LINK"
 
       - name: Output subscription content
