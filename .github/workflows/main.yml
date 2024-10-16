@@ -1,0 +1,26 @@
+name: Fetch Clash Subscription
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'  # 每5分钟运行一次
+
+jobs:
+  fetch-clash-subscription:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Fetch README.md content
+        run: |
+          curl -o README.md https://raw.githubusercontent.com/abshare/abshare.github.io/refs/heads/main/README.md
+          LINK=$(grep -A 1 ">🚀免费Clash订阅链接" README.md | tail -n 1 | sed 's/^https:/https:\/\//')
+          
+          echo "Download link is: $LINK"
+          
+          # 下载链接内容
+          curl -o clash_subscription.txt "$LINK"
+
+      - name: Output subscription content
+        run: |
+          cat clash_subscription.txt
