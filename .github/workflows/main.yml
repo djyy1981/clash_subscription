@@ -43,6 +43,9 @@ jobs:
 
           # 输出提取的链接
           echo "Download link is: $LINK"
+          
+          # 设置环境变量
+          echo "LINK=$LINK" >> $GITHUB_ENV
 
       - name: Download using Node.js
         run: |
@@ -68,7 +71,7 @@ jobs:
             });
           "          
         env:
-          LINK: ${{ steps.fetch-clash-subscription.outputs.LINK }}
+          LINK: ${{ env.LINK }}
 
       - name: Output subscription content
         run: |
